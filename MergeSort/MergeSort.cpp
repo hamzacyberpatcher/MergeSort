@@ -7,6 +7,8 @@ const int length = 190;
 int arr[length];
 bool isSorted = false;
 
+sf::Color colors[length];  // Each bar will have its own color
+
 void disp(void)
 {
     sf::Event event;
@@ -23,57 +25,86 @@ void disp(void)
     {
         sf::RectangleShape block(sf::Vector2f(10, arr[i]));
         block.setPosition(i * 10, 480 - arr[i]);
+        block.setFillColor(colors[i]);
         window.draw(block);
     }
     window.display();
 }
 
-void merge(int low, int mid, int high) {
-    int n1 = mid - low + 1; // Size of left subarray
-    int n2 = high - mid;    // Size of right subarray
+void merge(int low, int mid, int high)
+{
+    int n1 = mid - low + 1;
+    int n2 = high - mid;
 
-    // Dynamically allocate memory for temporary arrays
     int* left = new int[n1];
     int* right = new int[n2];
 
-    // Copy data to temporary arrays
-    for (int i = 0; i < n1; i++) {
+    // Copy elements to temp arrays
+    for (int i = 0; i < n1; i++)
+    {
         left[i] = arr[low + i];
+        colors[low + i] = sf::Color::Yellow; // Left subarray = yellow
     }
-    for (int j = 0; j < n2; j++) {
+    for (int j = 0; j < n2; j++)
+    {
         right[j] = arr[mid + 1 + j];
+        colors[mid + 1 + j] = sf::Color::Cyan; // Right subarray = cyan
     }
+    disp();
 
-    // Merge the temporary arrays back into arr[low..high]
     int i = 0, j = 0, k = low;
-    while (i < n1 && j < n2) {
-        if (left[i] <= right[j]) {
+    while (i < n1 && j < n2)
+    {
+        colors[k] = sf::Color::Red; // Active merge comparison
+        disp();
+
+        if (left[i] <= right[j])
+        {
             arr[k] = left[i];
             i++;
         }
-        else {
+        else
+        {
             arr[k] = right[j];
             j++;
         }
+
+        colors[k] = sf::Color::Magenta; // Just written
+        disp();
         k++;
     }
 
-    // Copy the remaining elements (if any)
-    while (i < n1) {
+    while (i < n1)
+    {
+        colors[k] = sf::Color::Red;
         arr[k] = left[i];
         i++;
-        k++;
+        colors[k] = sf::Color::Magenta;
         disp();
+        k++;
     }
-    while (j < n2) {
+
+    while (j < n2)
+    {
+        colors[k] = sf::Color::Red;
         arr[k] = right[j];
         j++;
-        k++;
+        colors[k] = sf::Color::Magenta;
         disp();
+        k++;
     }
+
     delete[] left;
     delete[] right;
+
+    // Mark merged section as green (sorted so far)
+    for (int m = low; m <= high; m++)
+    {
+        colors[m] = sf::Color::Green;
+    }
+    disp();
 }
+
 
 void mergeSort(int low, int high) {
     if (low < high) {
@@ -99,11 +130,12 @@ void printArray(int n) {
 }
 
 int main() {
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(175);
     srand(time(0));
     for (int i = 0; i < length; i++)
     {
         arr[i] = rand() % 390 + 10;
+        colors[i] = sf::Color::White;
     }
     int n = length;
 
