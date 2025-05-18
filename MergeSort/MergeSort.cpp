@@ -1,15 +1,21 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+// --- TV Girl Color Palette ---
+const sf::Color COLOR_DEFAULT = sf::Color(92, 26, 111);     // Very dark plum
+const sf::Color COLOR_LEFT = sf::Color(116, 6, 69);    // Deep magenta
+const sf::Color COLOR_RIGHT = sf::Color(15, 71, 159);   // Blue
+const sf::Color COLOR_COMPARE = sf::Color(237, 39, 136);  // Bright pink
+const sf::Color COLOR_SORTED = sf::Color(26, 44, 117);   // Dark navy
+const sf::Color COLOR_BACKGROUND = sf::Color(15, 15, 30);    // Soft dark night tone
 
-sf::RenderWindow window(sf::VideoMode(1900, 480), "Merge Sort");
+sf::RenderWindow window(sf::VideoMode(1900, 480), "Merge Sort Visualizer");
 const int length = 190;
 int arr[length];
 bool isSorted = false;
+sf::Color colors[length];
 
-sf::Color colors[length];  // Each bar will have its own color
-
-void disp(void)
+void disp()
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -20,7 +26,7 @@ void disp(void)
             exit(0);
         }
     }
-    window.clear();
+    window.clear(COLOR_BACKGROUND);
     for (int i = 0; i < length; i++)
     {
         sf::RectangleShape block(sf::Vector2f(10, arr[i]));
@@ -39,23 +45,22 @@ void merge(int low, int mid, int high)
     int* left = new int[n1];
     int* right = new int[n2];
 
-    // Copy elements to temp arrays
     for (int i = 0; i < n1; i++)
     {
         left[i] = arr[low + i];
-        colors[low + i] = sf::Color::Yellow; // Left subarray = yellow
+        colors[low + i] = COLOR_LEFT;
     }
     for (int j = 0; j < n2; j++)
     {
         right[j] = arr[mid + 1 + j];
-        colors[mid + 1 + j] = sf::Color::Cyan; // Right subarray = cyan
+        colors[mid + 1 + j] = COLOR_RIGHT;
     }
     disp();
 
     int i = 0, j = 0, k = low;
     while (i < n1 && j < n2)
     {
-        colors[k] = sf::Color::Red; // Active merge comparison
+        colors[k] = COLOR_COMPARE;
         disp();
 
         if (left[i] <= right[j])
@@ -69,27 +74,24 @@ void merge(int low, int mid, int high)
             j++;
         }
 
-        colors[k] = sf::Color::Magenta; // Just written
         disp();
         k++;
     }
 
     while (i < n1)
     {
-        colors[k] = sf::Color::Red;
+        colors[k] = COLOR_COMPARE;
         arr[k] = left[i];
         i++;
-        colors[k] = sf::Color::Magenta;
         disp();
         k++;
     }
 
     while (j < n2)
     {
-        colors[k] = sf::Color::Red;
+        colors[k] = COLOR_COMPARE;
         arr[k] = right[j];
         j++;
-        colors[k] = sf::Color::Magenta;
         disp();
         k++;
     }
@@ -97,47 +99,34 @@ void merge(int low, int mid, int high)
     delete[] left;
     delete[] right;
 
-    // Mark merged section as green (sorted so far)
     for (int m = low; m <= high; m++)
     {
-        colors[m] = sf::Color::Green;
+        colors[m] = COLOR_SORTED;
     }
     disp();
 }
 
-
-void mergeSort(int low, int high) {
-    if (low < high) {
-        // Find the middle point
+void mergeSort(int low, int high)
+{
+    if (low < high)
+    {
         int mid = low + (high - low) / 2;
-
-        // Sort first and second halves
         mergeSort(low, mid);
         mergeSort(mid + 1, high);
-
-        // Merge the sorted halves
         merge(low, mid, high);
     }
     isSorted = true;
 }
 
-// Print the array
-void printArray(int n) {
-    for (int i = 0; i < n; ++i) {
-        std::cout << arr[i] << " ";
-    }
-    std::cout << std::endl;
-}
-
-int main() {
+int main()
+{
     window.setFramerateLimit(175);
     srand(time(0));
     for (int i = 0; i < length; i++)
     {
         arr[i] = rand() % 390 + 10;
-        colors[i] = sf::Color::White;
+        colors[i] = COLOR_DEFAULT;
     }
-    int n = length;
 
     while (window.isOpen())
     {
@@ -152,10 +141,9 @@ int main() {
         if (!isSorted)
         {
             disp();
-            mergeSort(0, n - 1);
+            mergeSort(0, length - 1);
         }
         disp();
-        
     }
 
     return 0;
